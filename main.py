@@ -4,6 +4,7 @@ import numpy as np
 from feature_matching import sift_matching
 from knn.knn import K_NearestNeighbors
 from match_descriptor.angle_sift import AngleSift
+from utils import utils
 # 主类，汇总各个类的功能
 
 # 图像路径
@@ -32,7 +33,6 @@ for i in [69]:
     knn_2 = K_NearestNeighbors(pre_matches2)
     n_dist_2, n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches2[pointIndex, :]]), 16)
 
-    print(des1[77], des2[77])
     # # # 领域的点的可视化
     # plt.figure(num='reference')
     # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)

@@ -35,6 +35,7 @@ class AngleSift:
     '''
     def create_sift_angle_descriptor(self):
         flag = False
+        sum = 0
         shortest_index = -1
         sift_angle_descriptor = np.zeros(self.k)
         for i in range(self.k):
@@ -49,13 +50,13 @@ class AngleSift:
                 angle1, angle2 = self.get_angle(self.center_index_1, self.center_index_2, shortest_index,
                                                 self.neighbor_index_2[i])
                 des1, des2 = self.pre_matches_des_1[self.neighbor_index_2[i]], self.pre_matches_des_2[self.neighbor_index_2[i]]
-                print("des1, des2:", des1,' ',des2)
                 # 计算angle_sift
-                angle_sift_des1 = des1 * angle1
-                angle_sift_des2 = des2 * angle2
-                dist = utils.euclidean_distance(des1, des2)
-                print("dist:", dist)
+                angle_sift_des1 = des1 * angle1 / 180
+                angle_sift_des2 = des2 * angle2 / 180
+                dist = utils.euclidean_distance(angle_sift_des1, angle_sift_des2)
+                sum += dist
                 sift_angle_descriptor[i] = dist
+        sift_angle_descriptor /= sum
         return sift_angle_descriptor
 
     '''

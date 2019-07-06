@@ -17,8 +17,8 @@ def get_matches(img1_path, img2_path, sift_threshold):
     des1 = np.array(des1)[index1]
     des2 = np.array(des2)[index2]
     good_match = get_good_match(des1, des2, sift_threshold)
-    matching_points_1, matching_points_2, match_index = get_matching_points(kp1, kp2, good_match)
-    return matching_points_1, matching_points_2, np.array(des1), np.array(des2), match_index
+    matching_points_1, matching_points_2, des_1, des_2, match_index = get_matching_points(kp1, kp2, des1, des2, good_match)
+    return matching_points_1, matching_points_2, des_1, des_2, match_index
 
 
 # 去重返回值为不重复的值的下标
@@ -32,10 +32,12 @@ def repeat_removal(kp):
 
 # 得到在预匹配过后筛选的点,matching_points是一个n乘以2的二维矩阵，第一例为x坐标，第二例为y坐标
 # match_index为一个n*2的矩阵，在预匹配后用于记录点的对应关系
-def get_matching_points(kp1, kp2, good_match):
+def get_matching_points(kp1, kp2, des1, des2, good_match):
     matching_points_1 = np.zeros((len(good_match), 2))
     matching_points_2 = np.zeros((len(good_match), 2))
-    match_index = np.zeros((len(good_match),2))
+    des_1 = np.zeros((len(good_match), 128))
+    des_2 = np.zeros((len(good_match), 128))
+    match_index = np.zeros((len(good_match), 2))
     for i in range(len(good_match)):
         index1 = good_match[i].queryIdx
         index2 = good_match[i].trainIdx
@@ -43,8 +45,10 @@ def get_matching_points(kp1, kp2, good_match):
         matching_points_1[i][1] = kp1[index1].pt[1]
         matching_points_2[i][0] = kp2[index2].pt[0]
         matching_points_2[i][1] = kp2[index2].pt[1]
+        des_1[i] = des1[index1]
+        des_2[i] = des2[index2]
         match_index[i] = np.array([index1, index2])
-    return matching_points_1, matching_points_2, match_index
+    return matching_points_1, matching_points_2, des_1, des_2, match_index
 
 
 # 得到关键点
