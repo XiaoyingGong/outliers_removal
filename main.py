@@ -19,7 +19,7 @@ sift_threshold = 0.6
 # 配
 pre_matches1, pre_matches2, des1, des2, match_index = sift_matching.get_matches(img1_path, img2_path, sift_threshold)
 
-for i in np.linspace(101, 600, 500, dtype=int):
+for i in [69]:
     pointIndex = i # 69
     # 将prematch转置，便于matplotlib绘制
     pre_matches1_t = np.transpose(pre_matches1)
@@ -32,23 +32,32 @@ for i in np.linspace(101, 600, 500, dtype=int):
     knn_2 = K_NearestNeighbors(pre_matches2)
     n_dist_2, n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches2[pointIndex, :]]), 16)
 
+    print(des1[77], des2[77])
     # # # 领域的点的可视化
     # plt.figure(num='reference')
     # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
-    # plt.scatter(pre_matches1_t[0, [n_index_1]], pre_matches1_t[1, [n_index_1]], c='red', s=2)
+    # plt.scatter(pre_matches1_t[0, [n_index_1]], pre_matches1_t[1, [n_index_1]], c='blue', s=2)
     # plt.scatter(pre_matches1_t[0, pointIndex], pre_matches1_t[1, pointIndex], c='yellow', s=2)
+    # plt.scatter([194.81637573, 201.05604553, 225.74801636], [113.3913269, 112.81473541, 154.33976746],
+    #             c='red', s=2)
     #
     # plt.figure(num='sensed')
     # plt.scatter(pre_matches2_t[0, :], pre_matches2_t[1, :], s=2)
-    # plt.scatter(pre_matches2_t[0, [n_index_2]], pre_matches2_t[1, [n_index_2]], c='red', s=2)
+    # plt.scatter(pre_matches2_t[0, [n_index_2]], pre_matches2_t[1, [n_index_2]], c='blue', s=2)
     # plt.scatter(pre_matches2_t[0, pointIndex], pre_matches2_t[1, pointIndex], c='yellow', s=2)
+    # plt.scatter([308.92025757, 314.47872925, 324.65664673], [89.91501617, 90.25621796, 126.86416626],
+    #             c='red', s=2)
     #
     # plt.show()
 
+
     # AngleSift函数的测试
     #     def __init__(self, pre_matches_1, per_matches_2, center_index_1, center_index_2,
-    #                  neighbor_index_1, neighbor_index_2, neighbor_dist_1, neighbor_dist_2):
+    #                  neighbor_index_1, neighbor_index_2, neighbor_dist_1, neighbor_dist_2,
+    #                   pre_matches_des_1, pre_matches_des_2):
+    print(n_index_1)
+    print(n_index_2)
     angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
-                           n_dist_1, n_dist_2)
+                           n_dist_1, n_dist_2, des1, des2)
     b = angle_sift.create_sift_angle_descriptor()
     print(b)
