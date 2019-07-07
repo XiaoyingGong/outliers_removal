@@ -16,11 +16,19 @@ h_img = np.hstack((img1, img2))
 
 sift_threshold = 0.6
 
-# 通过sift进行预匹
-# 配
-pre_matches1, pre_matches2, des1, des2, match_index = sift_matching.get_matches(img1_path, img2_path, sift_threshold)
+# 通过sift进行预匹配
+pre_matches1, pre_matches2, des1, des2, match_index = sift_matching.get_matches(img1, img2, sift_threshold)
+# 因为匹配里面也有可能存在一对多的情况所以，这里进行一次将一对多的情况剔除
+pre_matches1, index1 = np.unique(pre_matches1, return_index=True, axis=0)
+pre_matches2 = pre_matches2[index1]
+pre_matches2, index2 = np.unique(pre_matches2, return_index=True, axis=0)
+pre_matches1 = pre_matches1[index2]
 
-for i in [69]:
+len1 = len(pre_matches1)
+len2 = len(pre_matches2)
+
+print(len1, len2)
+for i in range(len1):
     pointIndex = i # 69
     # 将prematch转置，便于matplotlib绘制
     pre_matches1_t = np.transpose(pre_matches1)
@@ -32,6 +40,24 @@ for i in [69]:
 
     knn_2 = K_NearestNeighbors(pre_matches2)
     n_dist_2, n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches2[pointIndex, :]]), 16)
+
+    # AngleSift函数的测试
+    #     def __init__(self, pre_matches_1, per_matches_2, center_index_1, center_index_2,
+    #                  neighbor_index_1, neighbor_index_2, neighbor_dist_1, neighbor_dist_2,
+    #                   pre_matches_des_1, pre_matches_des_2):
+    angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
+                           n_dist_1, n_dist_2, des1, des2)
+    b = angle_sift.create_sift_angle_descriptor()
+    if b.any() < 0.99:
+        print("angle_sift:", b)
+
+    #FuzzyGlobalCircle的测试
+    # 利用kd树得到全局所有点的距离 这里有一点问题
+    #  取整个点集作为领域会报错，所以取而代之的是取次最远的点作为最远的领域点
+    # 在算法的表现上应该是没有影响的
+    global_n_dist_1, global_n_index_1 = knn_1.get_k_neighbors(np.array([pre_matches1[pointIndex, :]]), len1 - 1)
+    global_n_dist_2, global_n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches2[pointIndex, :]]), len2 - 1)
+    # 放入FuzzyGlobalCircle中
 
     # # # 领域的点的可视化
     # plt.figure(num='reference')
@@ -49,13 +75,3 @@ for i in [69]:
     #             c='red', s=2)
     #
     # plt.show()
-
-
-    # AngleSift函数的测试
-    #     def __init__(self, pre_matches_1, per_matches_2, center_index_1, center_index_2,
-    #                  neighbor_index_1, neighbor_index_2, neighbor_dist_1, neighbor_dist_2,
-    #                   pre_matches_des_1, pre_matches_des_2):
-    angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
-                           n_dist_1, n_dist_2, des1, des2)
-    b = angle_sift.create_sift_angle_descriptor()
-    print(b)
