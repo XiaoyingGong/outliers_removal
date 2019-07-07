@@ -1,5 +1,5 @@
 import numpy as np
-from utils import utils
+from utils import utils, constant
 
 class AngleSift:
     '''
@@ -35,7 +35,8 @@ class AngleSift:
     '''
     def create_sift_angle_descriptor(self):
         flag = False
-        sum = 0
+        sum1 = 0
+        sum2 = 0
         shortest_index = -1
         sift_angle_descriptor = np.zeros(self.k)
         for i in range(self.k):
@@ -51,12 +52,11 @@ class AngleSift:
                                                 self.neighbor_index_2[i])
                 des1, des2 = self.pre_matches_des_1[self.neighbor_index_2[i]], self.pre_matches_des_2[self.neighbor_index_2[i]]
                 # 计算angle_sift
-                angle_sift_des1 = des1 * angle1 / 180
-                angle_sift_des2 = des2 * angle2 / 180
-                dist = utils.euclidean_distance(angle_sift_des1, angle_sift_des2)
-                sum += dist
-                sift_angle_descriptor[i] = dist
-        sift_angle_descriptor /= sum
+                angle_sift_des1 = np.sum(des1) * angle1 / 180
+                angle_sift_des2 = np.sum(des2) * angle2 / 180
+                # Gaussian Penalty 归一到0到1
+                x = np.minimum(angle_sift_des1, angle_sift_des2) / np.maximum(angle_sift_des1, angle_sift_des2)
+                sift_angle_descriptor[i] = utils.gaussian_penalty(1 - x, constant.GAUSSIAN_PENALTY_SIGMA_1)
         return sift_angle_descriptor
 
     '''

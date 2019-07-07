@@ -7,11 +7,9 @@ def euclidean_distance(data1, data2):
 
 
 # gaussian penalty
-def gaussian_penalty():
-    return np.exp()
+def gaussian_penalty(x, sigma):
+    return np.exp(-((x ** 2) / (2 * (sigma ** 2))))
 
 # 测试
 if __name__ == "__main__":
-    a = np.array([3])
-    b = np.array([4])
-    print(euclidean_distance(a, b))
+    a = 1

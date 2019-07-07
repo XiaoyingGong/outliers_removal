@@ -1,0 +1,4 @@
+
+
+GAUSSIAN_PENALTY_SIGMA_1 = 0.6
+

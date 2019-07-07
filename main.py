@@ -55,8 +55,6 @@ for i in [69]:
     #     def __init__(self, pre_matches_1, per_matches_2, center_index_1, center_index_2,
     #                  neighbor_index_1, neighbor_index_2, neighbor_dist_1, neighbor_dist_2,
     #                   pre_matches_des_1, pre_matches_des_2):
-    print(n_index_1)
-    print(n_index_2)
     angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
                            n_dist_1, n_dist_2, des1, des2)
     b = angle_sift.create_sift_angle_descriptor()
