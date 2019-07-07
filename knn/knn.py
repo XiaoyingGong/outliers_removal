@@ -16,7 +16,7 @@ class K_NearestNeighbors:
             zero_index = np.array(np.where(k_nearest_neighbors_dist[0] == 0.))
             k_nearest_neighbors_dist = np.delete(k_nearest_neighbors_dist, zero_index)
             k_nearest_neighbors_index = np.delete(k_nearest_neighbors_index, zero_index)
-            print(len(k_nearest_neighbors_dist[0]), " ", len(k_nearest_neighbors_index[0]))
+            # print(len(k_nearest_neighbors_dist[0]), " ", len(k_nearest_neighbors_index[0]))
             if len(k_nearest_neighbors_dist) != k or len(k_nearest_neighbors_index) != k:
                 k_new = k_new + 1
             else:

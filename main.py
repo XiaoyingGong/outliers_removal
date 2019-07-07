@@ -4,7 +4,7 @@ import numpy as np
 from feature_matching import sift_matching
 from knn.knn import K_NearestNeighbors
 from match_descriptor.angle_sift import AngleSift
-from utils import utils
+from  match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
 # 主类，汇总各个类的功能
 
 # 图像路径
@@ -26,9 +26,7 @@ pre_matches1 = pre_matches1[index2]
 
 len1 = len(pre_matches1)
 len2 = len(pre_matches2)
-
-print(len1, len2)
-for i in range(len1):
+for i in [92]:
     pointIndex = i # 69
     # 将prematch转置，便于matplotlib绘制
     pre_matches1_t = np.transpose(pre_matches1)
@@ -47,18 +45,18 @@ for i in range(len1):
     #                   pre_matches_des_1, pre_matches_des_2):
     angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
                            n_dist_1, n_dist_2, des1, des2)
-    b = angle_sift.create_sift_angle_descriptor()
-    if b.any() < 0.99:
-        print("angle_sift:", b)
+    a = angle_sift.create_sift_angle_descriptor()
 
     #FuzzyGlobalCircle的测试
-    # 利用kd树得到全局所有点的距离 这里有一点问题
-    #  取整个点集作为领域会报错，所以取而代之的是取次最远的点作为最远的领域点
-    # 在算法的表现上应该是没有影响的
+    # 利用kd树得到全局所有点的距离
     global_n_dist_1, global_n_index_1 = knn_1.get_k_neighbors(np.array([pre_matches1[pointIndex, :]]), len1 - 1)
     global_n_dist_2, global_n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches2[pointIndex, :]]), len2 - 1)
     # 放入FuzzyGlobalCircle中
-
+    #  __init__(self, global_dist_1, global_dist_2, split):
+    split = np.linspace(2, 17, 16, dtype=int)
+    fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
+    b = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
+    print(b)
     # # # 领域的点的可视化
     # plt.figure(num='reference')
     # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
