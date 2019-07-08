@@ -8,8 +8,8 @@ from  match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
 # 主类，汇总各个类的功能
 
 # 图像路径
-img1_path = "./img/1.png"
-img2_path = "./img/2.png"
+img1_path = "./img/1_r.png"
+img2_path = "./img/1_s.png"
 img1 = cv2.imread(img1_path)
 img2 = cv2.imread(img2_path)
 h_img = np.hstack((img1, img2))
