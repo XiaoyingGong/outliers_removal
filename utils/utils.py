@@ -1,5 +1,5 @@
 import numpy as np
-
+import cv2
 
 # 求欧式距离
 def euclidean_distance(data1, data2):
@@ -15,6 +15,9 @@ def gaussian_penalty(x, sigma):
 def chi_square(his_1, his_2):
     return (1 / 2) * np.sum(((his_1 - his_2) ** 2)/(his_1 + his_2))
 
+# 求直方图相关性
+def hist_correlation(his_1, his_2):
+    return cv2.compareHist(his_1, his_2, cv2.HISTCMP_CORREL)
 
 # 测试
 if __name__ == "__main__":

@@ -21,19 +21,25 @@ class FuzzyGlobalCircle:
             # print("his_1:", his_1, np.sum(his_1))
             # print("his_2:", his_2, np.sum(his_2))
             # 比较两个直方图
-            fuzzy_global_circle_descriptor[i] = utils.chi_square(his_1, his_2)
-            fuzzy_global_circle_descriptor[i] = utils.gaussian_penalty(fuzzy_global_circle_descriptor[i], constant.GAUSSIAN_PENALTY_SIGMA_2)
+            # chi-square 比较
+            # fuzzy_global_circle_descriptor[i] = utils.chi_square(his_1, his_2)
+            # fuzzy_global_circle_descriptor[i] = utils.gaussian_penalty(fuzzy_global_circle_descriptor[i], constant.GAUSSIAN_PENALTY_SIGMA_2)
+            # 相关性比较
+            his_1 = np.resize(his_1, (len(his_1), 1))
+            his_2 = np.resize(his_2, (len(his_2), 1))
+            hist_comp_result = utils.hist_correlation(his_1, his_2)
+            fuzzy_global_circle_descriptor[i] = utils.gaussian_penalty(hist_comp_result, constant.GAUSSIAN_PENALTY_SIGMA_2)
         return fuzzy_global_circle_descriptor
 
     # 计算每个环内的点的数量, k 代表分几个环
     def count_points(self, global_dist, k):
-        len_his = np.zeros(k)
+        points_his = np.zeros(k, dtype=np.float32)
         split_len = global_dist[self.len1 - 1] / k
         count_len = 0
         for i in range(k):
             count_len += split_len
             if i != k - 1:
-             len_his[i] = len([j for j in global_dist if count_len - split_len <= j <= count_len])
+                points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= count_len])
             else:
-             len_his[i] = len([j for j in global_dist if count_len - split_len <= j <= global_dist[self.len1 - 1]])
-        return len_his
+                points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= global_dist[self.len1 - 1]])
+        return points_his

@@ -14,7 +14,7 @@ img1 = cv2.imread(img1_path)
 img2 = cv2.imread(img2_path)
 h_img = np.hstack((img1, img2))
 
-sift_threshold = 0.6
+sift_threshold = 1.0
 
 # 通过sift进行预匹配
 pre_matches1, pre_matches2, des1, des2, match_index = sift_matching.get_matches(img1, img2, sift_threshold)
@@ -26,7 +26,8 @@ pre_matches1 = pre_matches1[index2]
 
 len1 = len(pre_matches1)
 len2 = len(pre_matches2)
-for i in [92]:
+
+for i in [99]:
     pointIndex = i # 69
     # 将prematch转置，便于matplotlib绘制
     pre_matches1_t = np.transpose(pre_matches1)
@@ -56,7 +57,8 @@ for i in [92]:
     split = np.linspace(2, 17, 16, dtype=int)
     fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
     b = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
-    print(b)
+
+    c = np.hstack((a, b))
     # # # 领域的点的可视化
     # plt.figure(num='reference')
     # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
