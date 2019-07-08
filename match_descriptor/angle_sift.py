@@ -39,6 +39,7 @@ class AngleSift:
         sum2 = 0
         shortest_index = -1
         sift_angle_descriptor = np.zeros(self.k)
+        # way2_sift_angle_descriptor = np.zeros(self.k)
         for i in range(self.k):
             if not self.is_match_index(self.neighbor_index_2[i]): #是外点，就等于0
                 sift_angle_descriptor[i] = 0.0
@@ -52,11 +53,19 @@ class AngleSift:
                                                 self.neighbor_index_2[i])
                 des1, des2 = self.pre_matches_des_1[self.neighbor_index_2[i]], self.pre_matches_des_2[self.neighbor_index_2[i]]
                 # 计算angle_sift
-                angle_sift_des1 = np.sum(des1) * angle1 / 180
-                angle_sift_des2 = np.sum(des2) * angle2 / 180
-                # Gaussian Penalty 归一到0到1
-                x = np.minimum(angle_sift_des1, angle_sift_des2) / np.maximum(angle_sift_des1, angle_sift_des2)
-                sift_angle_descriptor[i] = utils.gaussian_penalty(1 - x, constant.GAUSSIAN_PENALTY_SIGMA_1)
+                angle_sift_des1 = np.float32(des1 * angle1 / 180)
+                angle_sift_des2 = np.float32(des2 * angle2 / 180)
+                # 利用直方图的比较
+                angle_sift_des1 = np.resize(angle_sift_des1, [len(angle_sift_des1), 1])
+                angle_sift_des2 = np.resize(angle_sift_des2, [len(angle_sift_des2), 1])
+                hist_comp_result = utils.hist_correlation(angle_sift_des1, angle_sift_des2)
+                sift_angle_descriptor[i] = hist_comp_result
+                # 计算angle_sift
+                #way2_angle_sift_des1 = np.sum(des1) * angle1 / 180
+                #way2_angle_sift_des2 = np.sum(des2) * angle2 / 180
+                #Gaussian Penalty 归一到0到1
+                #way2_x = np.minimum(way2_angle_sift_des1, way2_angle_sift_des2) / np.maximum(way2_angle_sift_des1, way2_angle_sift_des2)
+                #way2_sift_angle_descriptor[i] = utils.gaussian_penalty(1 - way2_x, constant.GAUSSIAN_PENALTY_SIGMA_1)
         return sift_angle_descriptor
 
     '''
