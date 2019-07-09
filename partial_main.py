@@ -4,17 +4,30 @@ import numpy as np
 from feature_matching import sift_matching
 from knn.knn import K_NearestNeighbors
 from match_descriptor.angle_sift import AngleSift
-from  match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
-# 主类，汇总各个类的功能
+from match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
+
+
+# 这个类用于部分的标记 即一张图提了点 只标记300个点
+def get_partial_points(pre_matches):
+    pre_matches_len = len(pre_matches)
+    split_len = int(pre_matches_len / 30)
+    index = np.array([], dtype=np.int)
+    split_index = np.linspace(0, 9, 10, dtype=np.int)
+    for i in range(30):
+        index = np.append(index, split_index)
+        if i != 29:
+            split_index += split_len
+    return pre_matches[index], index
+
 
 # 图像路径
-img1_path = "./img/1_r.png"
-img2_path = "./img/1_s.png"
+img1_path = "./img/4_r.png"
+img2_path = "./img/4_s.png"
 img1 = cv2.imread(img1_path)
 img2 = cv2.imread(img2_path)
 h_img = np.hstack((img1, img2))
 
-sift_threshold = 0.9
+sift_threshold = 1.0
 
 # 通过sift进行预匹配
 pre_matches1, pre_matches2, des1, des2, match_index = sift_matching.get_matches(img1, img2, sift_threshold)
@@ -27,8 +40,11 @@ pre_matches1 = pre_matches1[index2]
 len1 = len(pre_matches1)
 len2 = len(pre_matches2)
 
-for i in [69]:
-    pointIndex = i# 69
+_, partial_index1 = get_partial_points(pre_matches1)
+_, partial_index2 = get_partial_points(pre_matches2)
+
+for i in range(0):
+    pointIndex = partial_index1[i]# 69
     # 将prematch转置，便于matplotlib绘制
     pre_matches1_t = np.transpose(pre_matches1)
     pre_matches2_t = np.transpose(pre_matches2)
@@ -57,28 +73,4 @@ for i in [69]:
     fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
     b, points_index = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
     c = np.hstack((a, b))
-    # print(points_index[2][0])
-    # 可视化相邻的点
-    # plt.figure(num="reference")
-    # for j in range(points_index):
-    #     if j % 2 == 0:
-    #         len = len(points_index[j])
-    #         arr = points_index[j]
-
-
-    # # # 领域的点的可视化
-    # plt.figure(num='reference')
-    # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
-    # plt.scatter(pre_matches1_t[0, [n_index_1]], pre_matches1_t[1, [n_index_1]], c='blue', s=2)
-    # plt.scatter(pre_matches1_t[0, pointIndex], pre_matches1_t[1, pointIndex], c='yellow', s=2)
-    # plt.scatter([194.81637573, 201.05604553, 225.74801636], [113.3913269, 112.81473541, 154.33976746],
-    #             c='red', s=2)
-    #
-    # plt.figure(num='sensed')
-    # plt.scatter(pre_matches2_t[0, :], pre_matches2_t[1, :], s=2)
-    # plt.scatter(pre_matches2_t[0, [n_index_2]], pre_matches2_t[1, [n_index_2]], c='blue', s=2)
-    # plt.scatter(pre_matches2_t[0, pointIndex], pre_matches2_t[1, pointIndex], c='yellow', s=2)
-    # plt.scatter([308.92025757, 314.47872925, 324.65664673], [89.91501617, 90.25621796, 126.86416626],
-    #             c='red', s=2)
-    #
-    # plt.show()
+    #print(c)
