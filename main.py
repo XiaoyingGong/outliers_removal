@@ -26,7 +26,8 @@ pre_matches1 = pre_matches1[index2]
 
 len1 = len(pre_matches1)
 len2 = len(pre_matches2)
-
+print(len1)
+print(len2)
 for i in [69]:
     pointIndex = i# 69
     # 将prematch转置，便于matplotlib绘制
@@ -57,28 +58,32 @@ for i in [69]:
     fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
     b, points_index = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
     c = np.hstack((a, b))
-    # print(points_index[2][0])
-    # 可视化相邻的点
-    # plt.figure(num="reference")
-    # for j in range(points_index):
-    #     if j % 2 == 0:
-    #         len = len(points_index[j])
-    #         arr = points_index[j]
 
+    # print(points_index[0][0])
+    # print(points_index[0][1])
+    # true_index_1 = global_n_index_1[points_index[2][0]]
+    # true_index_2 = global_n_index_1[points_index[2][1]]
+    # true_index_3 = global_n_index_1[points_index[2][2]]
+    # print(len(true_index_1))
+    # print(len(true_index_2))
+    # #for i in range(len(points_index[0])):
+    # plt.figure(num='reference')
+    # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
+    # plt.scatter(pre_matches1_t[0, true_index_1], pre_matches1_t[1, true_index_1], c='blue', s=2)
+    # plt.scatter(pre_matches1_t[0, true_index_2], pre_matches1_t[1, true_index_2], c='red', s=2)
+    # plt.scatter(pre_matches1_t[0, true_index_3], pre_matches1_t[1, true_index_3], c='green', s=2)
+    # plt.scatter(pre_matches1_t[0, pointIndex], pre_matches1_t[1, pointIndex], c='yellow', s=2)
+    # plt.show()
 
     # # # 领域的点的可视化
     # plt.figure(num='reference')
     # plt.scatter(pre_matches1_t[0, :], pre_matches1_t[1, :], s=2)
     # plt.scatter(pre_matches1_t[0, [n_index_1]], pre_matches1_t[1, [n_index_1]], c='blue', s=2)
     # plt.scatter(pre_matches1_t[0, pointIndex], pre_matches1_t[1, pointIndex], c='yellow', s=2)
-    # plt.scatter([194.81637573, 201.05604553, 225.74801636], [113.3913269, 112.81473541, 154.33976746],
-    #             c='red', s=2)
     #
     # plt.figure(num='sensed')
     # plt.scatter(pre_matches2_t[0, :], pre_matches2_t[1, :], s=2)
     # plt.scatter(pre_matches2_t[0, [n_index_2]], pre_matches2_t[1, [n_index_2]], c='blue', s=2)
     # plt.scatter(pre_matches2_t[0, pointIndex], pre_matches2_t[1, pointIndex], c='yellow', s=2)
-    # plt.scatter([308.92025757, 314.47872925, 324.65664673], [89.91501617, 90.25621796, 126.86416626],
-    #             c='red', s=2)
     #
     # plt.show()
