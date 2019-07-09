@@ -47,8 +47,6 @@ for i in [69]:
     angle_sift = AngleSift(pre_matches1, pre_matches2, pointIndex, pointIndex, n_index_1, n_index_2,
                            n_dist_1, n_dist_2, des1, des2)
     a = angle_sift.create_sift_angle_descriptor()
-    if (a < 0.4).any():
-        print(a)
     #FuzzyGlobalCircle的测试
     # 利用kd树得到全局所有点的距离
     global_n_dist_1, global_n_index_1 = knn_1.get_k_neighbors(np.array([pre_matches1[pointIndex, :]]), len1 - 1)
@@ -58,6 +56,7 @@ for i in [69]:
     split = np.linspace(2, 17, 16, dtype=int)
     fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
     b = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
+    print(b)
     c = np.hstack((a, b))
 
     # # # 领域的点的可视化

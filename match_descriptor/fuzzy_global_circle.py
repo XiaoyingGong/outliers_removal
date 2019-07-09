@@ -1,5 +1,6 @@
 import numpy as np
 from utils import utils, constant
+import matplotlib.pyplot as plt
 
 class FuzzyGlobalCircle:
     '''
@@ -36,10 +37,17 @@ class FuzzyGlobalCircle:
         points_his = np.zeros(k, dtype=np.float32)
         split_len = global_dist[self.len1 - 1] / k
         count_len = 0
+        index = None
         for i in range(k):
             count_len += split_len
             if i != k - 1:
-                points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= count_len])
+                #points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= count_len])
+                index = np.array(np.where((global_dist >= count_len - split_len) & (global_dist <= count_len)))
+                index = index.reshape([len(index[0])])
+                points_his[i] = len(index)
             else:
-                points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= global_dist[self.len1 - 1]])
+                # points_his[i] = len([j for j in global_dist if count_len - split_len <= j <= global_dist[self.len1 - 1]])
+                index = np.array(np.where((global_dist >= count_len - split_len) & (global_dist <= global_dist[self.len1 - 1])))
+                index = index.reshape([len(index[0])])
+                points_his[i] = len(index)
         return points_his
