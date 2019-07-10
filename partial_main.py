@@ -25,8 +25,10 @@ img1_path = "./img/4_r.png"
 img2_path = "./img/4_s.png"
 img1 = cv2.imread(img1_path)
 img2 = cv2.imread(img2_path)
+# resize
+img1 = cv2.resize(img1, (800, 600))
+img2 = cv2.resize(img2, (800, 600))
 h_img = np.hstack((img1, img2))
-
 sift_threshold = 1.0
 
 # 通过sift进行预匹配
