@@ -39,13 +39,13 @@ labeled_data_list = np.array(["1_r.png_1_s.png_1.0.npz", "2_r.png_2_s.png_1.0.np
 labeled_data_path = "./data/labeled_data/"
 train_data_path = "./data/train_data/"
 # 定义
-train_descriptor = np.zeros([3600, 32])
+train_descriptor = np.zeros([3300, 16])
 # [1, 0]为inlier即1  [0, 1]为outlier即0
-train_label = np.zeros([3600, 2])
+train_label = np.zeros([3300, 2])
 train_descriptor_i = 0
 train_label_i = 0
 
-for img_index in range(12):
+for img_index in np.linspace(1, 11, 11, dtype=np.int):
     print("train_label_i", train_label_i)
     print("train_descriptor_i", train_descriptor_i)
     print("img_index", img_index)
@@ -104,7 +104,7 @@ for img_index in range(12):
         fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
         b, points_index = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
         c = np.hstack((a, b))
-        train_descriptor[train_descriptor_i] = c
+        train_descriptor[train_descriptor_i] = a
         train_descriptor_i += 1
 
     # 读取标注
