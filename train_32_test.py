@@ -1,17 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from network.outliers_removal_network_single import ORNet
+from network.outliers_removal_network import ORNet
 import cv2
 
 # 数据
-load_labeled = np.load("./data/test_data/16bit/test_data.npz")
+load_labeled = np.load("./data/test_data/32bit/test_data.npz")
 test_descriptor = load_labeled["test_descriptor"]
 test_label = load_labeled["test_label"]
 
 # 声明网络
-ornet = ORNet("./model/16bit/model")
+ornet = ORNet("./model/32bit/model")
 predict = ornet.predict(test_descriptor)
-
 # print(predict[124])
 # print(test_label[124])
 # print(test_descriptor[124])

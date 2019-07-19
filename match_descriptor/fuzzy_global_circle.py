@@ -17,7 +17,7 @@ class FuzzyGlobalCircle:
         # 用于绘制
         self.neighbor_point_index = []
 
-    def create_fuzzy_global_circle_descriptor(self):
+    def create_fuzzy_global_circle_descriptor_v0(self):
         fuzzy_global_circle_descriptor = np.zeros(len(self.split))
         for i in range(len(self.split)):
             his_1 = self.count_points(self.global_dist_1, self.split[i])
@@ -31,8 +31,46 @@ class FuzzyGlobalCircle:
             his_2 = np.resize(his_2, (len(his_2), 1))
             plt.show()
             hist_comp_result = utils.hist_correlation(his_1, his_2)
-            fuzzy_global_circle_descriptor[i] = utils.gaussian_penalty(hist_comp_result, constant.GAUSSIAN_PENALTY_SIGMA_2)
+            fuzzy_global_circle_descriptor[i] = utils.gaussian_penalty(hist_comp_result,
+                                                                       constant.GAUSSIAN_PENALTY_SIGMA_2)
         return fuzzy_global_circle_descriptor, self.neighbor_point_index
+
+    def create_fuzzy_global_circle_descriptor(self):
+        circle_descriptor = np.zeros(len(self.split))
+        fuzzy_circle_descriptor = np.zeros(len(self.split))
+        for j in range(len(self.split)):
+            his_1 = self.count_points(self.global_dist_1, self.split[j])
+            his_2 = self.count_points(self.global_dist_2, self.split[j])
+
+            # 计算模糊高斯计数策略的圆环
+            fuzzy_his_1 = np.zeros(len(his_1), dtype=np.float32)
+            fuzzy_his_2 = np.zeros(len(his_1), dtype=np.float32)
+
+            for i in range(len(his_1)):
+                if i == 0:
+                    fuzzy_his_1[i] = his_1[i] + his_1[i + 1] * utils.gaussian_weight(i + 1, 1)
+                    fuzzy_his_2[i] = his_2[i] + his_2[i + 1] * utils.gaussian_weight(i + 1, 1)
+                elif i == (len(his_1) - 1):
+                    fuzzy_his_1[i] = his_1[i - 1] * utils.gaussian_weight(i + 1, 1) + his_1[i]
+                    fuzzy_his_2[i] = his_2[i - 1] * utils.gaussian_weight(i + 1, 1) + his_2[i]
+                else:
+                    fuzzy_his_1[i] = his_1[i - 1] * utils.gaussian_weight(i - 1, 1) + his_1[i] + his_1[
+                        i + 1] * utils.gaussian_weight(i + 1, 1)
+                    fuzzy_his_2[i] = his_2[i - 1] * utils.gaussian_weight(i - 1, 1) + his_2[i] + his_2[
+                        i + 1] * utils.gaussian_weight(i + 1, 1)
+
+            his_1 = np.resize(his_1, (len(his_1), 1))
+            his_2 = np.resize(his_2, (len(his_1), 1))
+
+            fuzzy_his_1 = np.resize(fuzzy_his_1, (len(fuzzy_his_1), 1))
+            fuzzy_his_2 = np.resize(fuzzy_his_2, (len(fuzzy_his_2), 1))
+
+            hist_comp_result = utils.hist_correlation(his_1, his_2)
+            fuzzy_hist_comp_result = utils.hist_correlation(fuzzy_his_1, fuzzy_his_2)
+
+            circle_descriptor[j] = hist_comp_result
+            fuzzy_circle_descriptor[j] = fuzzy_hist_comp_result
+        return circle_descriptor, fuzzy_circle_descriptor
 
     # 计算每个环内的点的数量, k 代表分几个环
     def count_points(self, global_dist, k):
