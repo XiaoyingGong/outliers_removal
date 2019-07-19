@@ -17,7 +17,7 @@ def create_train_or_test_data(img_r_list, img_s_list, labeled_data_list, search_
     else:
         train_descriptor_len = len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
 
-    train_descriptor = np.zeros([3300, 32])
+    train_descriptor = np.zeros([3300, 48])
     # [1, 0]为inlier即1  [0, 1]为outlier即0
     train_label = np.zeros([3300, 2])
     index_start = 0

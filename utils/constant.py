@@ -11,7 +11,7 @@ PARTIAL_POINTS_K = 30
 PARTIAL_POINTS_K_NUM = 10
 
 # SIFT阈值
-SIFT_THRESHOLD = 0.85
+SIFT_THRESHOLD = 1.0
 # 在angle_sift算法中邻域的个数
 ANGLE_SIFT_KNN_K = 16
 # fuzzy_global_circle 每次分多少份

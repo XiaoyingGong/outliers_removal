@@ -8,7 +8,7 @@ print(len(train_descriptor))
 print(len(train_label))
 # 声明网络
 ornet = ORNet(None)
-for i in range(500000):
+for i in range(50000):
     index = np.random.randint(0, 3300, 512)
     # 训练
     loss = ornet.train(train_descriptor[index], train_label[index])

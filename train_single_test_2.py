@@ -21,7 +21,7 @@ pre_matches1_t = np.transpose(pre_matches_1)
 pre_matches2_t = np.transpose(pre_matches_2)
 
 # 声明网络
-ornet = ORNet("./model/32bit/model")
+ornet = ORNet("./model/48bit/model")
 predict = ornet.predict(my_descriptor)
 
 inlier_index = np.where(np.argmax(predict, axis=1) == 0)[0]
