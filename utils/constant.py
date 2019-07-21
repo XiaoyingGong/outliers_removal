@@ -1,8 +1,10 @@
 import numpy as np
 
-GAUSSIAN_PENALTY_SIGMA_1 = 0.6
+# SIFT阈值
+SIFT_THRESHOLD = 0.75
 
-GAUSSIAN_PENALTY_SIGMA_2 = 1.2
+GAUSSIAN_PENALTY_SIGMA_1 = 0.6
+GAUSSIAN_PENALTY_SIGMA_2 = 0.4
 
 # 在原本的与预匹配点集中，抽取部分点
 # PARTIAL_POINTS_K 代表 有 30份
@@ -10,8 +12,6 @@ GAUSSIAN_PENALTY_SIGMA_2 = 1.2
 PARTIAL_POINTS_K = 30
 PARTIAL_POINTS_K_NUM = 10
 
-# SIFT阈值
-SIFT_THRESHOLD = 1.0
 # 在angle_sift算法中邻域的个数
 ANGLE_SIFT_KNN_K = 16
 # fuzzy_global_circle 每次分多少份
@@ -19,6 +19,18 @@ FUZZY_GLOBAL_CIRCLE_SPLIT = np.linspace(2, 17, 16, dtype=int)
 #在intra_neighborhood_distance中的领域的长度
 INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE = 16
 
+# 使用的描述子的种类
+ANGLE_SIFT = "ANGLE_SIFT"
+FUZZY_GLOBAL_CIRCLE = "FUZZY_GLOBAL_CIRCLE"
+INTRA_NEIGHBORHOOD = "INTRA_NEIGHBORHOOD"
+
+# 文件存储的位置
+# 标签的位置
+LABELED_DATA_PATH = "./data/labeled_data/"
+# 生成的文件暂时存储的位置
+TEMP_SAVE_PATH = "./data/temp_save/"
+# 图片存储的位置
+IMG_SAVE_PATH = "./img/"
 
 
 

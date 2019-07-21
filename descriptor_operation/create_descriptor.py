@@ -8,112 +8,110 @@ from match_descriptor.angle_sift import AngleSift
 from match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
 from match_descriptor.intra_neighborhood_distance import IntraNeighborDist
 
-# des: 用于图像提取特征点的取样, 即不要某个阈值下的所有点，只要部分点
-# input: k代表分成多少分， k_num代表每份多少个
-# return: pre_matches[index]代表取得k*k_num个预匹配， index代表取出来的点在原来的pre_matches中的序号
-def get_partial_points(pre_matches, k, k_num):
-    pre_matches_len = len(pre_matches)
-    split_len = int(pre_matches_len / k)
-    index = np.array([], dtype=np.int)
-    split_index = np.linspace(0, k_num-1, k_num, dtype=np.int)
-    for i in range(k):
-        index = np.append(index, split_index)
-        if i != k - 1:
-            split_index += split_len
-    return pre_matches[index], index
 
 
-# 用于一对多的去除，强行变成一对一
-def become_one_to_one(pre_matches_1, pre_matches_2):
-    pre_matches_1, index_1 = np.unique(pre_matches_1, return_index=True, axis=0)
-    pre_matches_2 = pre_matches_2[index_1]
-    pre_matches_2, index_2 = np.unique(pre_matches_2, return_index=True, axis=0)
-    pre_matches_1 = pre_matches_1[index_2]
-    return pre_matches_1, pre_matches_2
+#  input: 根据kd树得到的 距离 和该距离的点的 下标, 当前产生描述子的点下标point_index, 预匹配_1, 预匹配_2
+#  根据constant的配置，得到angle_sift描述子
+def get_angle_sift_des(n_dist_1, n_dist_2, n_index_1, n_index_2, point_index, pre_matches_1,
+                       pre_matches_2, des_1, des_2):
+    angle_sift = AngleSift(pre_matches_1, pre_matches_2, point_index, point_index, n_index_1, n_index_2,
+                           n_dist_1, n_dist_2, des_1, des_2)
+    angle_sift_des = angle_sift.create_sift_angle_descriptor()
+    return angle_sift_des
+
+
+# input: global_n_dist_1, global_n_dist_2：根据kd树得到的全局距离。
+# 根据constant的配置，得到fuzzy_global_circle描述子：
+def get_fuzzy_global_circle_des(global_n_dist_1, global_n_dist_2):
+    split = constant.FUZZY_GLOBAL_CIRCLE_SPLIT
+    fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
+    fuzzy_global_circle_des, _ = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
+    return fuzzy_global_circle_des
+
+
+#  input: n_dist_1，n_dist_2， 根据kd树得到的该点的领域距离
+# 根据constant的配置，得到intra_neighbor_dist
+def get_intra_neighbor_dist_des(n_dist_1, n_dist_2):
+    intra_neighbor_dist = IntraNeighborDist(n_dist_1, n_dist_2)
+    intra_neighbor_dist = intra_neighbor_dist.get_intra_neighbor_dist_descriptor()
+    return intra_neighbor_dist
+
+
+# 根据输入的需要的“描述子类别”向量
+# 获得产生的描述子的长度
+def get_descriptor_len(descriptor_categories):
+    des_cate_len = len(descriptor_categories)
+    descriptor_len = 0
+    for i in range(des_cate_len):
+        # 描述子1：角度与SIFT
+        if descriptor_categories[i] == constant.ANGLE_SIFT:
+            descriptor_len += constant.ANGLE_SIFT_KNN_K
+        # 描述子2： 模糊的全局同心圆计数
+        elif descriptor_categories[i] == constant.FUZZY_GLOBAL_CIRCLE:
+            descriptor_len += len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
+        # 描述子3： 领域距离的比值
+        else:
+            descriptor_len += constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE
+    return descriptor_len
 
 
 # 以下为本.py文件的主函数
 # k代表分成多少分， k_num代表每份多少个, is_unique代表是否需要将预匹配一一对应化，即去掉一对多的情况
 # train_data： 'once':只有第一个描述子， 'twice'：只有第二个描述子，'double'：两个描述子都有
-def create_descriptor(img_path_1, img_path_2, k=None, k_num=None, is_unique=True, descriptor_category='double'):
-    # 图像路径
-    img_1 = cv2.imread(img_path_1)
-    img_2 = cv2.imread(img_path_2)
-    # resize,这儿resize需要改进
-    img_1 = cv2.resize(img_1, (800, 600))
-    img_2 = cv2.resize(img_2, (800, 600))
-    # 水平拼接后的图像
-    h_img = np.hstack((img_1, img_2))
-    # 通过sift进行预匹配
-    pre_matches_1, pre_matches_2, des_1, des_2, match_index = \
-        sift_matching.get_matches(img_1, img_2, constant.SIFT_THRESHOLD)
-    # 因为匹配里面也有可能存在一对多的情况所以，这里进行一次将一对多的情况剔除
-    # is_unique == true执行下列代码, is_unique == false 不执行下列代码
-    # 这儿如果不这样做，用kd树求全局距离的时候（即描述子2），会出错
-    # 需要改进get_k_neighbors及不排除0的情况才能弄对
-    if is_unique:
-        pre_matches_1, pre_matches_2 = become_one_to_one(pre_matches_1, pre_matches_2)
-    # 求长度
+def create_descriptor(pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, descriptor_categories=None):
+    # 最后输出的描述子
+    descriptor_len = get_descriptor_len(descriptor_categories)
+    descriptor_final = np.zeros([len(partial_index_1), descriptor_len])
+    # 构造两个Kd树 用于寻找领域
+    knn_1 = K_NearestNeighbors(pre_matches_1)
+    knn_2 = K_NearestNeighbors(pre_matches_2)
+    # 两个pre_match的长度
     len_1 = len(pre_matches_1)
     len_2 = len(pre_matches_2)
-
-    # 得到部分的点集
-    # 如果k != None 或者 k_num ！= None否则是全部所有的点集一起上
-    # partial_index_1 与 partial_index_2 值应该是一样的，
-    # 因为 pre_matches_1 与 pre_matches_2 也是对应的
-    if k != None and k_num != None:
-        _, partial_index_1 = get_partial_points(pre_matches_1, k, k_num)
-        _, partial_index_2 = get_partial_points(pre_matches_2, k, k_num)
-    else:
-        partial_index_1 = np.array(range(len(pre_matches_1)))
-        partial_index_2 =  np.array(range(len(pre_matches_2)))
-
-    if descriptor_category == 'double':
-        descriptor_len = len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT) + constant.ANGLE_SIFT_KNN_K
-    elif descriptor_category == 'once':
-        descriptor_len = constant.ANGLE_SIFT_KNN_K
-    elif descriptor_category == 'three':
-        descriptor_len = constant.ANGLE_SIFT_KNN_K + len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT) + constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE
-    else:
-        descriptor_len = len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
-    descriptor_final = np.zeros([len(partial_index_1), descriptor_len])
     # 产生描述子
     for i in range(len(partial_index_1)):
-        pointIndex = partial_index_1[i]
-        # 构造两个Kd树 用于寻找领域
-        knn_1 = K_NearestNeighbors(pre_matches_1)
-        knn_2 = K_NearestNeighbors(pre_matches_2)
-        # 寻找邻近的点
-        n_dist_1, n_index_1 = knn_1.get_k_neighbors(np.array([pre_matches_1[pointIndex, :]]), constant.ANGLE_SIFT_KNN_K)
-        n_dist_2, n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches_2[pointIndex, :]]), constant.ANGLE_SIFT_KNN_K)
+        point_index = partial_index_1[i]
 
-        # 求描述子1 angle_sift
-        angle_sift = AngleSift(pre_matches_1, pre_matches_2, pointIndex, pointIndex, n_index_1, n_index_2,
-                               n_dist_1, n_dist_2, des_1, des_2)
-        descriptor_a = angle_sift.create_sift_angle_descriptor()
+        # 寻找邻近的点 angle_sift 和 Intra_Neighborhood_dist这两个算子都可能用到他们
+        if (descriptor_categories == constant.ANGLE_SIFT).any() or \
+                (descriptor_categories == constant.INTRA_NEIGHBORHOOD).any():
+            n_dist_1, n_index_1 =\
+                knn_1.get_k_neighbors(np.array([pre_matches_1[point_index, :]]), constant.ANGLE_SIFT_KNN_K)
+            n_dist_2, n_index_2 =\
+                knn_2.get_k_neighbors(np.array([pre_matches_2[point_index, :]]), constant.ANGLE_SIFT_KNN_K)
 
-        # 求描述子2 fuzzy_global_circle
+        # 求描述子1：angle_sift
+        if (descriptor_categories == constant.ANGLE_SIFT).any():
+            angle_sift_des = get_angle_sift_des(n_dist_1, n_dist_2, n_index_1, n_index_2, point_index, pre_matches_1,
+                           pre_matches_2, des_1, des_2)
+
         # 利用kd树求该点到全局个点的距离
-        global_n_dist_1, global_n_index_1 = knn_1.get_k_neighbors(np.array([pre_matches_1[pointIndex, :]]), len_1 - 1)
-        global_n_dist_2, global_n_index_2 = knn_2.get_k_neighbors(np.array([pre_matches_2[pointIndex, :]]), len_2 - 1)
-        # fuzzy_global_circle 每次分多少份
-        split = constant.FUZZY_GLOBAL_CIRCLE_SPLIT
-        fuzzy_global_circle = FuzzyGlobalCircle(global_n_dist_1, global_n_dist_2, split)
-        descriptor_b, _ = fuzzy_global_circle.create_fuzzy_global_circle_descriptor()
-        # IntraNeighborDist
-        intra_neighbor_dist = IntraNeighborDist(n_dist_1, n_dist_2)
-        descriptor_c = intra_neighbor_dist.cal_intra_neighbor_dist_descriptor()
+        if (descriptor_categories == constant.FUZZY_GLOBAL_CIRCLE).any():
+            global_n_dist_1, global_n_index_1 =\
+                knn_1.get_k_neighbors(np.array([pre_matches_1[point_index, :]]), len_1 - 1)
+            global_n_dist_2, global_n_index_2 =\
+                knn_2.get_k_neighbors(np.array([pre_matches_2[point_index, :]]), len_2 - 1)
+            # 求描述子2：fuzzy_global_circle
+            fuzzy_global_circle_des = get_fuzzy_global_circle_des(global_n_dist_1, global_n_dist_2)
 
-        # 将两个描述子拼在一起成为一个向量
-        if descriptor_category == 'double':
-            descriptor_final[i] = np.hstack((descriptor_a, descriptor_b))
-        elif descriptor_category == 'once':
-            descriptor_final[i] = descriptor_a
-        elif descriptor_category == 'three':
-            descriptor_final[i] = np.hstack((descriptor_a, descriptor_b, descriptor_c))
-        else:
-            descriptor_final[i] = descriptor_b
+        # 求描述子3：IntraNeighborDist
+        if (descriptor_categories == constant.INTRA_NEIGHBORHOOD).any():
+            intra_neighbor_dist_des = get_intra_neighbor_dist_des(n_dist_1, n_dist_2)
 
-    return descriptor_final, pre_matches_1, pre_matches_2, h_img
+        des_cate_i = 0
+        for descriptor_category in descriptor_categories:
+            if descriptor_category == constant.ANGLE_SIFT:
+                descriptor_final[i, des_cate_i:des_cate_i+constant.ANGLE_SIFT_KNN_K] =\
+                    angle_sift_des
+                des_cate_i += constant.ANGLE_SIFT_KNN_K
+            elif descriptor_category == constant.FUZZY_GLOBAL_CIRCLE:
+                descriptor_final[i, des_cate_i: des_cate_i + len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)] =\
+                    fuzzy_global_circle_des
+                des_cate_i += len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
+            else:
+                descriptor_final[i, des_cate_i: des_cate_i + constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE] =\
+                    intra_neighbor_dist_des
+                des_cate_i += constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE
+    return descriptor_final
 
 

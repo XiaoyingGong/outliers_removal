@@ -6,7 +6,7 @@ class IntraNeighborDist:
         self.neighbor_dist_1 = neighbor_dist_1
         self.neighbor_dist_2 = neighbor_dist_2
 
-    def cal_intra_neighbor_dist_descriptor(self):
+    def get_intra_neighbor_dist_descriptor(self):
         intra_neighbor_dist_descriptor = np.zeros(constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE)
         for i in range(constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE):
             intra_neighbor_dist_descriptor[i] = np.minimum(self.neighbor_dist_1[i], self.neighbor_dist_2[i]) \

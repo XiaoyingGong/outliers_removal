@@ -19,9 +19,9 @@ def chi_square(his_1, his_2):
 def hist_correlation(his_1, his_2):
     return cv2.compareHist(his_1, his_2, cv2.HISTCMP_CORREL)
 
-
-def gaussian_weight(k, n_cicle):
-    return np.exp(-((k ** 2) / ((2*n_cicle+1) ** 2)))
+# 在模糊计数中，求高斯的数目
+def gaussian_weight(current_circle_index, count_circle_index, circles_num):
+    return np.exp(-(current_circle_index - count_circle_index)**2 / (circles_num**2))
 
 # 测试
 if __name__ == "__main__":

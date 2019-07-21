@@ -1,7 +1,7 @@
 import numpy as np
 from network.outliers_removal_network import ORNet
 # 数据
-load_labeled = np.load("./data/train_data/train_data.npz")
+load_labeled = np.load("./data/train_data/32bit/train_data.npz")
 train_descriptor = load_labeled["train_descriptor"]
 train_label = load_labeled["train_label"]
 # 声明网络

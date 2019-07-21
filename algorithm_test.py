@@ -1,4 +1,6 @@
 import numpy as np
 
-a = np.zeros([900, 48])
-print(np.shape(a[300:600]))
+test_data = np.load("./data/temp_save/test_data.npz")
+test_descriptor = test_data["test_descriptor"]
+for i in range(len(test_descriptor)):
+    print(test_descriptor[i])

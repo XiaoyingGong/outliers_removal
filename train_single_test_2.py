@@ -1,20 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from feature_matching import sift_matching
-from knn.knn import K_NearestNeighbors
-from match_descriptor.angle_sift import AngleSift
-from match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
-from network.outliers_removal_network import ORNet
-from descriptor_operation import create_descriptor
+from utils import constant
+from network.outliers_removal_network_48bit import ORNet
+from descriptor_operation import create_descriptor, create_pre_matches
 import cv2
 # 读图
 img_path_1 = "./img/15_r.jpg"
 img_path_2 = "./img/15_s.jpg"
-my_descriptor = np.zeros([100, 32])
-descriptoer, pre_matches_1, pre_matches_2, h_img = create_descriptor.create_descriptor(img_path_1, img_path_2, k=None, k_num=None, is_unique=True, descriptor_category='double')
-pre_matches_1 = pre_matches_1
-pre_matches_2 = pre_matches_2
-my_descriptor = descriptoer
+my_descriptor = np.zeros([100, 48])
+descriptor_categories = np.array([constant.ANGLE_SIFT, constant.FUZZY_GLOBAL_CIRCLE, constant.INTRA_NEIGHBORHOOD])
+pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, img_1, img_2 = create_pre_matches.get_pre_matches(img_path_1, img_path_2, is_unique=True, k=None, k_num=None)
+descriptor_final = create_descriptor.create_descriptor(
+    pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, descriptor_categories=descriptor_categories)
+
+my_descriptor = descriptor_final
+
+h_img = np.hstack((img_1, img_2))
 print(len(my_descriptor))
 # 将prematch转置，便于matplotlib绘制
 pre_matches1_t = np.transpose(pre_matches_1)
