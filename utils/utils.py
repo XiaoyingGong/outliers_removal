@@ -5,6 +5,11 @@ import cv2
 def euclidean_distance(data1, data2):
     return np.sqrt(np.sum((data1 - data2) ** 2))
 
+# 将向量标准化后的欧氏距离
+def standard_euclidean_distance_standard_vector(data1, data2):
+    data1 = data1 / np.sqrt(np.sum(data1**2) + 0.0000000000000001)
+    data2 = data2 / np.sqrt(np.sum(data2**2) + 0.0000000000000001)
+    return euclidean_distance(data1, data2)
 
 # gaussian penalty
 def gaussian_penalty(x, sigma):
@@ -25,6 +30,8 @@ def gaussian_weight(current_circle_index, count_circle_index, circles_num):
 
 # 测试
 if __name__ == "__main__":
-    his1 = np.array([1, 2, 3, 4, 5])
-    his2 = np.array([1, 1, 1, 1, 4])
-    print(chi_square(his1, his2))
+    data_1 = np.array([1, 1, 1])
+    data_2 = np.array([1, 1, 1])
+    a1 = euclidean_distance(data_1, data_2)
+    a2 = (1 / np.sqrt(2) * standard_euclidean_distance_standard_vector(data_1, data_2))
+    print(a1, a2)

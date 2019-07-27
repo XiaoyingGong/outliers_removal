@@ -68,6 +68,7 @@ def create_descriptor(pre_matches_1, pre_matches_2, des_1, des_2, partial_index_
     # 两个pre_match的长度
     len_1 = len(pre_matches_1)
     len_2 = len(pre_matches_2)
+    print("KNN is ok")
     # 产生描述子
     for i in range(len(partial_index_1)):
         point_index = partial_index_1[i]

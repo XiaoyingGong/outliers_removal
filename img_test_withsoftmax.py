@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import constant
-from network.outliers_removal_network_48bit import ORNet
+from network.outliers_removal_network_48bit_softmax import ORNet
 from descriptor_operation import create_descriptor, create_pre_matches
 import cv2
 # 读图
@@ -26,8 +26,9 @@ pre_matches2_t = np.transpose(pre_matches_2)
 ornet = ORNet("./model/48bit/model")
 predict = ornet.predict(my_descriptor)
 
-inlier_index = np.where(np.argmax(predict, axis=1) == 0)[0]
-print(len(inlier_index))
+
+inlier_index = np.where(predict[:, 0] > 0.99)[0]
+
 points_1 = np.transpose(pre_matches_1)
 points_2 = np.transpose(pre_matches_2)
 
