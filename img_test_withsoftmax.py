@@ -27,7 +27,7 @@ ornet = ORNet("./model/48bit/model")
 predict = ornet.predict(my_descriptor)
 
 
-inlier_index = np.where(predict[:, 0] > 0.99)[0]
+inlier_index = np.where(predict[:, 0] > 0.2)[0]
 
 points_1 = np.transpose(pre_matches_1)
 points_2 = np.transpose(pre_matches_2)
