@@ -4,7 +4,7 @@ from utils import utils, constant
 class AngleSift:
     '''
         input：
-        pre_matches_1:预匹配后，sensed图片拥有的inliers
+        pre_matches_1:预匹配后，reference图片拥有的inliers
         per_matches_2:预匹配后，sensed图片拥有的inliers
         center_index_1:邻域的中心点在pre_matches_1中的下标
         center_index_2:邻域的中心点在pre_matches_2中的下标
