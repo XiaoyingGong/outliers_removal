@@ -7,8 +7,7 @@ from knn.knn import K_NearestNeighbors
 from match_descriptor.angle_sift import AngleSift
 from match_descriptor.fuzzy_global_circle import FuzzyGlobalCircle
 from match_descriptor.intra_neighborhood_distance import IntraNeighborDist
-
-
+from match_descriptor.r_s_inv_des import RotationScaleInvDes
 
 #  input: 根据kd树得到的 距离 和该距离的点的 下标, 当前产生描述子的点下标point_index, 预匹配_1, 预匹配_2
 #  根据constant的配置，得到angle_sift描述子
@@ -36,6 +35,13 @@ def get_intra_neighbor_dist_des(n_dist_1, n_dist_2):
     intra_neighbor_dist = intra_neighbor_dist.get_intra_neighbor_dist_descriptor()
     return intra_neighbor_dist
 
+# 描述子4
+def get_r_s_inv_des(n_dist_1, n_dist_2, n_index_1, n_index_2, point_index, pre_matches_1,
+                       pre_matches_2, des_1, des_2):
+    r_s_inv = RotationScaleInvDes(pre_matches_1, pre_matches_2, des_1, des_2, point_index, point_index, n_index_1, n_index_2,
+                        n_dist_1, n_dist_2)
+    descriptor = r_s_inv.create_r_s_inv_descriptor()
+    return descriptor
 
 # 根据输入的需要的“描述子类别”向量
 # 获得产生的描述子的长度
@@ -50,8 +56,11 @@ def get_descriptor_len(descriptor_categories):
         elif descriptor_categories[i] == constant.FUZZY_GLOBAL_CIRCLE:
             descriptor_len += len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
         # 描述子3： 领域距离的比值
-        else:
+        elif descriptor_categories[i] == constant.INTRA_NEIGHBORHOOD:
             descriptor_len += constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE
+        # 描述子4:旋转和尺度不变的描述子
+        else:
+            descriptor_len += constant.ROTATION_SCALE_INV_KNN_K * 2
     return descriptor_len
 
 
@@ -81,6 +90,13 @@ def create_descriptor(pre_matches_1, pre_matches_2, des_1, des_2, partial_index_
             n_dist_2, n_index_2 =\
                 knn_2.get_k_neighbors(np.array([pre_matches_2[point_index, :]]), constant.ANGLE_SIFT_KNN_K)
 
+        # scale and rotation inv的描述子
+        if (descriptor_categories == constant.ROTATION_SCALE_INV).any():
+            n_dist_inv_1, n_index_inv_1 =\
+                knn_1.get_k_neighbors(np.array([pre_matches_1[point_index, :]]), constant.ROTATION_SCALE_INV_KNN_K)
+            n_dist_inv_2, n_index_inv_2 = \
+                knn_2.get_k_neighbors(np.array([pre_matches_2[point_index, :]]), constant.ROTATION_SCALE_INV_KNN_K)
+
         # 求描述子1：angle_sift
         if (descriptor_categories == constant.ANGLE_SIFT).any():
             angle_sift_des = get_angle_sift_des(n_dist_1, n_dist_2, n_index_1, n_index_2, point_index, pre_matches_1,
@@ -99,6 +115,12 @@ def create_descriptor(pre_matches_1, pre_matches_2, des_1, des_2, partial_index_
         if (descriptor_categories == constant.INTRA_NEIGHBORHOOD).any():
             intra_neighbor_dist_des = get_intra_neighbor_dist_des(n_dist_1, n_dist_2)
 
+        # 求描述子4:
+        if (descriptor_categories == constant.ROTATION_SCALE_INV).any():
+            r_s_inv_des = get_r_s_inv_des(n_dist_inv_1, n_dist_inv_2, n_index_inv_1, n_index_inv_2, point_index,
+                                          pre_matches_1, pre_matches_2, des_1, des_2)
+
+
         des_cate_i = 0
         for descriptor_category in descriptor_categories:
             if descriptor_category == constant.ANGLE_SIFT:
@@ -109,10 +131,12 @@ def create_descriptor(pre_matches_1, pre_matches_2, des_1, des_2, partial_index_
                 descriptor_final[i, des_cate_i: des_cate_i + len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)] =\
                     fuzzy_global_circle_des
                 des_cate_i += len(constant.FUZZY_GLOBAL_CIRCLE_SPLIT)
-            else:
+            elif descriptor_category == constant.INTRA_NEIGHBORHOOD:
                 descriptor_final[i, des_cate_i: des_cate_i + constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE] =\
                     intra_neighbor_dist_des
                 des_cate_i += constant.INTRA_NEIGHBOR_DIST_DESCRIPTOR_SIZE
+            else:
+                descriptor_final[i, des_cate_i: des_cate_i + constant.ROTATION_SCALE_INV_KNN_K * 2] =\
+                    r_s_inv_des
+                des_cate_i += constant.ROTATION_SCALE_INV_KNN_K * 2
     return descriptor_final
-
-

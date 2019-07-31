@@ -25,5 +25,5 @@ for i in range(1):
     n_dist_2, n_index_2 = \
         knn_2.get_k_neighbors(np.array([pre_matches_2[point_index, :]]), constant.ROTATION_SCALE_INV_KNN_K)
     r_s_i_d = RotationScaleInvDes(pre_matches_1, pre_matches_2, des_1, des_2, i, i, n_index_1, n_index_2, n_dist_1, n_dist_2)
-    descriptor = r_s_i_d.create_sift_angle_descriptor()
+    descriptor = r_s_i_d.create_r_s_inv_descriptor()
     print(descriptor)

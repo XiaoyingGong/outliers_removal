@@ -37,7 +37,7 @@ class RotationScaleInvDes:
         这个描述子的维度是根据领域的个数而定
         从2中开始找最近，逐个遍历
     '''
-    def create_sift_angle_descriptor(self):
+    def create_r_s_inv_descriptor(self):
         flag = False
         shortest_index = -1
         degree_sift_des = np.zeros(self.k)

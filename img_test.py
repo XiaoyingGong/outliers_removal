@@ -6,10 +6,11 @@ from descriptor_operation import create_descriptor, create_pre_matches
 import cv2
 # 读图
 # 性能瓶颈：constant.FUZZY_GLOBAL_CIRCLE 可以从编程上改善
-img_path_1 = "./img/15_r.jpg"
-img_path_2 = "./img/15_s.jpg"
+img_path_1 = "./img/14_r.jpg"
+img_path_2 = "./img/14_s.jpg"
+
 # my_descriptor = np.zeros([100, 48])
-descriptor_categories = np.array([constant.ANGLE_SIFT, constant.FUZZY_GLOBAL_CIRCLE, constant.INTRA_NEIGHBORHOOD])
+descriptor_categories = np.array([constant.ROTATION_SCALE_INV, constant.FUZZY_GLOBAL_CIRCLE])
 pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, img_1, img_2 = create_pre_matches.get_pre_matches(img_path_1, img_path_2, is_unique=True, k=None, k_num=None)
 descriptor_final = create_descriptor.create_descriptor(
     pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, descriptor_categories=descriptor_categories)

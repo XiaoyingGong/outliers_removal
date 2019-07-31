@@ -19,7 +19,7 @@ labeled_data_list = np.array(["1_r.png_1_s.png_1.0.npz", "2_r.png_2_s.png_1.0.np
                               "10_r.jpg_10_s.jpg_1.0.npz", "11_r.jpg_11_s.jpg_1.0.npz", "12_r.jpg_12_s.jpg_1.0.npz"])
 labeled_data_path = "./data/labeled_data/"
 
-descriptor_categories = np.array([constant.INTRA_NEIGHBORHOOD])
+descriptor_categories = np.array([constant.ROTATION_SCALE_INV, constant.FUZZY_GLOBAL_CIRCLE])
 # descriptor_categories = np.array([constant.ANGLE_SIFT, constant.FUZZY_GLOBAL_CIRCLE, constant.INTRA_NEIGHBORHOOD])
 # train_or_test = "test"
 train_or_test = "train"
