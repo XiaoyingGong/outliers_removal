@@ -37,13 +37,13 @@ class RotationScaleInvDes:
         这个描述子的维度是根据领域的个数而定
         从2中开始找最近，逐个遍历
     '''
-    def create_r_s_inv_descriptor(self):
+    def create_r_s_inv_descriptor(self, inlier_index):
         flag = False
         shortest_index = -1
         degree_sift_des = np.zeros(self.k)
         scale_sift_des = np.zeros(self.k)
         for i in range(self.k):
-            if not self.is_match_index(self.neighbor_index_2[i]): #是外点，就等于0
+            if not self.is_match_index(self.neighbor_index_2[i], inlier_index): #是外点，就等于0
                 degree_sift_des[i] = 0.0
                 scale_sift_des[i] = 0.0
             else:#是内点，就计算夹角的差值，第一次计算到这儿，就是找最短边
@@ -114,5 +114,5 @@ class RotationScaleInvDes:
         寻找是否在其中有与之匹配的index
         返回值为是否在另一个序列中有这个index(True or False)
     '''
-    def is_match_index(self, index):
-        return (self.neighbor_index_1 == index).any()
+    def is_match_index(self, index, inlier_index):
+        return (self.neighbor_index_1 == index).any() and (index == inlier_index).any()

@@ -33,7 +33,6 @@ def gaussian_weight(current_circle_index, count_circle_index, circles_num):
     return np.exp(-(current_circle_index - count_circle_index)**2 / (circles_num**2))
 
 
-
 def normalized_euclidean(a, b):
     sumnum = 0
     for i in range(len(a)):

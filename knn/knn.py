@@ -23,3 +23,24 @@ class K_NearestNeighbors:
                 break
         return k_nearest_neighbors_dist, k_nearest_neighbors_index
 
+    def get_k_neighbors_inlier_version(self, aim_point, k, inlier_index):
+        # 没找到足量的点 就一直循环
+        k_new = k + 1
+        while True:
+            k_nearest_neighbors_dist, k_nearest_neighbors_index = self.nn.kneighbors(X=aim_point, n_neighbors=k_new)
+            #去除掉自己
+            zero_index = np.array(np.where(k_nearest_neighbors_dist[0] == 0.))
+            k_nearest_neighbors_dist = np.delete(k_nearest_neighbors_dist, zero_index)
+            k_nearest_neighbors_index = np.delete(k_nearest_neighbors_index, zero_index)
+            # print(len(k_nearest_neighbors_dist[0]), " ", len(k_nearest_neighbors_index[0]))
+            # 找出不在inlier序列的元素
+            mask = np.in1d(k_nearest_neighbors_index, inlier_index)
+            not_in_inlier_index = np.where(~mask)[0]
+            k_nearest_neighbors_dist = np.delete(k_nearest_neighbors_dist, not_in_inlier_index)
+            k_nearest_neighbors_index = np.delete(k_nearest_neighbors_index, not_in_inlier_index)
+            if len(k_nearest_neighbors_dist) != k or len(k_nearest_neighbors_index) != k:
+                k_new = k_new + 1
+            else:
+                break
+        return k_nearest_neighbors_dist, k_nearest_neighbors_index
+

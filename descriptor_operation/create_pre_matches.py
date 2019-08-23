@@ -26,15 +26,22 @@ def become_one_to_one(pre_matches_1, pre_matches_2):
     pre_matches_1 = pre_matches_1[index_2]
     return pre_matches_1, pre_matches_2
 
+# 图像大小的调整
+def img_resize(img_r, img_s):
+    shape = img_r.shape
+    resize_h = int(shape[0] / constant.IMG_RESIZE_RATIO)
+    resize_w = int(shape[1] / constant.IMG_RESIZE_RATIO)
+    img_r = cv2.resize(img_r, (resize_w, resize_h))
+    img_s = cv2.resize(img_s, (resize_w, resize_h))
+    return img_r, img_s, resize_h, resize_w
+
 
 def get_pre_matches(img_path_1, img_path_2, is_unique=True, k=None, k_num=None):
     # 图像路径
     img_1 = cv2.imread(img_path_1)
     img_2 = cv2.imread(img_path_2)
-    # resize,这儿resize需要改进
-    img_1 = cv2.resize(img_1, (800, 600))
-    img_2 = cv2.resize(img_2, (800, 600))
-
+    # resize
+    img_1, img_2, resize_h, resize_w = img_resize(img_1, img_2)
     # 通过sift进行预匹配
     pre_matches_1, pre_matches_2, des_1, des_2, match_index = \
         sift_matching.get_matches(img_1, img_2, constant.SIFT_THRESHOLD)
@@ -56,4 +63,6 @@ def get_pre_matches(img_path_1, img_path_2, is_unique=True, k=None, k_num=None):
         partial_index_1 = np.array(range(len(pre_matches_1)))
         partial_index_2 = np.array(range(len(pre_matches_2)))
 
-    return pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, img_1, img_2
+    return pre_matches_1, pre_matches_2, des_1, des_2, partial_index_1, partial_index_2, img_1, img_2, resize_h, resize_w
+
+
